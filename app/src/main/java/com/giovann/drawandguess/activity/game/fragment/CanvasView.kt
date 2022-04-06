@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
@@ -98,6 +99,17 @@ class CanvasView(context: Context) : View(context) {
         extraBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         extraCanvas = Canvas(extraBitmap)
         extraCanvas.drawColor(backgroundColor)
+    }
+
+    fun syncDrawing(input: List<MovementCoordinate>) {
+        path.reset()
+        path.moveTo(input[0].currentX, input[0].currentY)
+        input.forEach {
+            path.quadTo(it.currentX, it.currentY, (it.endX + it.currentX) / 2, (it.endY + it.currentY) / 2)
+            extraCanvas.drawPath(path, paint)
+        }
+        path.reset()
+        invalidate()
     }
 
     fun clearCanvas() {

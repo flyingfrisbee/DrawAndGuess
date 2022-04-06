@@ -30,6 +30,7 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
             val typeToken = object : TypeToken<List<MovementCoordinate>>() {}.type
             val resp = Gson().fromJson<List<MovementCoordinate>>(text, typeToken)
             Log.i("onMessage", "${resp}")
+//            canvasView.syncDrawing(resp)
             super.onMessage(webSocket, text)
         }
 
