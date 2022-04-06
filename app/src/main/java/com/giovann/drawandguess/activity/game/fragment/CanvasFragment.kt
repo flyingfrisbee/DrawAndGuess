@@ -11,6 +11,7 @@ import com.giovann.drawandguess.model.DummyResponse
 import com.giovann.drawandguess.model.MovementCoordinate
 import com.giovann.drawandguess.utils.Constants.WEBSOCKET_URL
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.*
 
 class CanvasFragment : Fragment(), CanvasView.CanvasListener {
@@ -20,14 +21,15 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
     inner class EchoWebSocketListener : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            webSocket.send("Hello world!")
+//            webSocket.send("Hello world!")
 //            webSocket.close(1000, "Goodbye!")
             super.onOpen(webSocket, response)
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            val resp = Gson().fromJson(text, DummyResponse::class.java)
-            Log.i("onMessage", "${resp.body + "ehe"}, ${resp.type + 2}")
+            val typeToken = object : TypeToken<List<MovementCoordinate>>() {}.type
+            val resp = Gson().fromJson<List<MovementCoordinate>>(text, typeToken)
+            Log.i("onMessage", "${resp}")
             super.onMessage(webSocket, text)
         }
 
@@ -59,7 +61,7 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
     override fun sendMovementData(data: MutableList<MovementCoordinate>) {
         Log.i("CanvasFragment", "$data")
-        ws.send(Gson().toJson(data))
+        Log.i("CanvasFragment", "${ws.send(Gson().toJson(data))}")
     }
 
     private fun startWebsocket() {
