@@ -1,4 +1,4 @@
-package com.giovann.drawandguess
+package com.giovann.minipaint
 
 import org.junit.Test
 

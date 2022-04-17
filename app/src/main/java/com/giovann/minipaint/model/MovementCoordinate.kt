@@ -1,4 +1,4 @@
-package com.giovann.drawandguess.model
+package com.giovann.minipaint.model
 
 data class MovementCoordinate(
     val currentX: Float,

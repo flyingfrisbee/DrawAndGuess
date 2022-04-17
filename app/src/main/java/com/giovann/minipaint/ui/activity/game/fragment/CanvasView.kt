@@ -1,17 +1,16 @@
-package com.giovann.drawandguess.activity.game.fragment
+package com.giovann.minipaint.ui.activity.game.fragment
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
-import com.giovann.drawandguess.R
-import com.giovann.drawandguess.model.MovementCoordinate
-import com.giovann.drawandguess.utils.Constants
+import com.giovann.minipaint.R
+import com.giovann.minipaint.model.MovementCoordinate
+import com.giovann.minipaint.utils.Constants
 
 class CanvasView(context: Context) : View(context) {
 
