@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DrawAndGuess">
         <activity
-            android:name="com.giovann.minipaint.ui.activity.game.GameActivity"
+            android:name=".ui.activity.splash.SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -22,6 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.activity.menu.MenuActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".ui.activity.game.GameActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

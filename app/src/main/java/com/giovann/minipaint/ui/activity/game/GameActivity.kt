@@ -16,8 +16,10 @@ import timber.log.Timber
 class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
-    private lateinit var canvasFragment: CanvasFragment
     private val viewModel: GameViewModel by viewModels()
+    private val canvasFragment: CanvasFragment by lazy {
+        CanvasFragment.newInstance()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,39 +33,11 @@ class GameActivity : AppCompatActivity() {
                 btnReset.setOnClickListener {
                     canvasFragment.clearCanvas()
                 }
-
-                executeCreateRoom("anjim")
-                executeJoinRoom("anjim")
-
-                createRoomResp.observe(this@GameActivity, { resource ->
-                    when (resource) {
-                        is Resource.Failed -> {
-                            Snackbar.make(root, resource.msg!!, Snackbar.LENGTH_SHORT).show()
-                        }
-
-                        is Resource.Ok -> {
-                            Timber.i("create: ${resource.data}")
-                        }
-                    }
-                })
-
-                joinRoomResp.observe(this@GameActivity, { resource ->
-                    when (resource) {
-                        is Resource.Failed -> {
-                            Snackbar.make(root, resource.msg!!, Snackbar.LENGTH_SHORT).show()
-                        }
-
-                        is Resource.Ok -> {
-                            Timber.i("join: ${resource.data}")
-                        }
-                    }
-                })
             }
         }
     }
 
     private fun initializeCanvasFragment() {
-        canvasFragment = CanvasFragment()
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainerView, canvasFragment)
             .commit()

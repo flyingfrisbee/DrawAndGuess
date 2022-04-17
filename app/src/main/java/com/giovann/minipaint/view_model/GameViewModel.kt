@@ -16,19 +16,5 @@ class GameViewModel @Inject constructor(
     private val repo: ScribblerRepo
 ) : ViewModel() {
 
-    private val _createRoomResp = MutableLiveData<Resource<ScribblerResponse>>()
-    val createRoomResp: LiveData<Resource<ScribblerResponse>> = _createRoomResp
 
-    fun executeCreateRoom(roomName: String) = viewModelScope.launch {
-        _createRoomResp.value = repo.createRoom(roomName)
-        _createRoomResp.value = Resource.Empty()
-    }
-
-    private val _joinRoomResp = MutableLiveData<Resource<ScribblerResponse>>()
-    val joinRoomResp: LiveData<Resource<ScribblerResponse>> = _joinRoomResp
-
-    fun executeJoinRoom(roomName: String) = viewModelScope.launch {
-        _joinRoomResp.value = repo.joinRoom(roomName)
-        _joinRoomResp.value = Resource.Empty()
-    }
 }

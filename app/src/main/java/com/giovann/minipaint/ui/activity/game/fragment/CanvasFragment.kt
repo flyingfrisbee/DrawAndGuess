@@ -21,12 +21,6 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
     private lateinit var ws: WebSocket
 
     inner class EchoWebSocketListener : WebSocketListener() {
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-//            webSocket.send("Hello world!")
-//            webSocket.close(1000, "Goodbye!")
-            super.onOpen(webSocket, response)
-        }
-
         override fun onMessage(webSocket: WebSocket, text: String) {
             when (text[0]) {
                 '{' -> {
@@ -69,6 +63,11 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
         return canvasView
     }
 
+    override fun onDestroyView() {
+        ws.close(1000, null)
+        super.onDestroyView()
+    }
+
     override fun sendMovementData(data: MutableList<MovementCoordinate>) {
         Log.i("CanvasFragment", "$data")
         Log.i("CanvasFragment", "${ws.send(Gson().toJson(data))}")
@@ -88,5 +87,11 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
     fun clearCanvas() {
         canvasView.clearCanvas()
+    }
+
+    companion object {
+        fun newInstance(): CanvasFragment {
+            return CanvasFragment()
+        }
     }
 }
