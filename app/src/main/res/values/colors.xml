@@ -10,4 +10,7 @@
 
     <color name="colorBackground">#FFFF5500</color>
     <color name="colorPaint">#FFFFEB3B</color>
+    <color name="card_player_pink">#FFCBCB</color>
+    <color name="card_player_orange">#FA9D00</color>
+    <color name="card_player_green">#51D354</color>
 </resources>

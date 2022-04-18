@@ -17,6 +17,11 @@ import timber.log.Timber
 
 class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
+    interface FragmentListener {
+        fun gameStatusUpdate(stat: GameStatusUpdate)
+        fun gameClosed()
+    }
+
     private lateinit var canvasView: CanvasView
     private lateinit var ws: WebSocket
 
@@ -27,6 +32,7 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
                     val typeToken = object : TypeToken<GameStatusUpdate>() {}.type
                     val resp = Gson().fromJson<GameStatusUpdate>(text, typeToken)
                     Timber.i("onMessage:: ${resp}")
+                    fragmentListener?.gameStatusUpdate(resp)
                 }
 
                 else -> {
@@ -39,6 +45,7 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
             Timber.i("onClose:: ${code}, ${reason}")
+            fragmentListener?.gameClosed()
             super.onClosing(webSocket, code, reason)
         }
 
@@ -50,7 +57,7 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startWebsocket("escape", "paimon")
+        startWebsocket()
         canvasView = CanvasView.newInstance(this, requireContext())
         canvasView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         canvasView.contentDescription = getString(R.string.app_description)
@@ -73,10 +80,11 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
         Log.i("CanvasFragment", "${ws.send(Gson().toJson(data))}")
     }
 
-    private fun startWebsocket(roomName: String, playerName: String) {
+    private fun startWebsocket() {
         val client = OkHttpClient()
 
         val url = "$WEBSOCKET_URL$roomName/$playerName"
+        Timber.i("$url")
 
         val request = Request.Builder().url(url).build()
         val listener = EchoWebSocketListener()
@@ -90,7 +98,13 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
     }
 
     companion object {
-        fun newInstance(): CanvasFragment {
+        var fragmentListener: FragmentListener? = null
+        var roomName = ""
+        var playerName = ""
+        fun newInstance(listener: FragmentListener, room: String, player: String): CanvasFragment {
+            roomName = room
+            playerName = player
+            fragmentListener = listener
             return CanvasFragment()
         }
     }

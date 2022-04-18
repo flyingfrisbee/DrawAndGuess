@@ -6,22 +6,22 @@
     android:layout_height="wrap_content">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilName"
+        android:id="@+id/tilRoomName"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Insert name"
+        android:hint="Insert room name"
         app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etName"
+            android:id="@+id/etRoomName"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:maxLength="7">
+            android:maxLength="14">
 
         </com.google.android.material.textfield.TextInputEditText>
     </com.google.android.material.textfield.TextInputLayout>
@@ -39,8 +39,8 @@
         app:backgroundTint="#42BDAB"
         app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/tilName"
-        app:layout_constraintTop_toBottomOf="@+id/tilName"
+        app:layout_constraintStart_toStartOf="@+id/tilRoomName"
+        app:layout_constraintTop_toBottomOf="@+id/tilRoomName"
         app:strokeColor="#4AED5D"
         app:strokeWidth="1dp">
 
@@ -57,8 +57,8 @@
         android:textSize="18dp"
         app:backgroundTint="#42BDAB"
         app:cornerRadius="16dp"
-        app:layout_constraintEnd_toEndOf="@+id/tilName"
-        app:layout_constraintTop_toBottomOf="@+id/tilName"
+        app:layout_constraintEnd_toEndOf="@+id/tilRoomName"
+        app:layout_constraintTop_toBottomOf="@+id/tilRoomName"
         app:strokeColor="#4AED5D"
         app:strokeWidth="1dp">
 

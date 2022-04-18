@@ -11,8 +11,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.giovann.minipaint.databinding.ActivityMenuBinding
 import com.giovann.minipaint.databinding.EnterNameDialogBinding
+import com.giovann.minipaint.databinding.EnterRoomNameDialogBinding
 import com.giovann.minipaint.model.enumerate.Resource
 import com.giovann.minipaint.ui.activity.game.GameActivity
+import com.giovann.minipaint.utils.Helpers.disable
+import com.giovann.minipaint.utils.Helpers.enable
 import com.giovann.minipaint.view_model.MenuViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,17 +49,18 @@ class MenuActivity : AppCompatActivity() {
                 }
 
                 btnCreate.setOnClickListener {
-                    // TODO: show dialog to insert name (tar save ke viewmodel nama roomny), then call api
-                    // executeCreateRoom("anjim")
+                    createEnterRoomNameDialog {
+                        executeCreateRoom(roomName)
+                    }
                 }
 
                 btnJoin.setOnClickListener {
-                    // TODO: show dialog to insert name (tar save ke viewmodel nama roomny), then call api
-                    // executeJoinRoom("anjim")
+                    createEnterRoomNameDialog {
+                        executeJoinRoom(roomName)
+                    }
                 }
 
                 ivEdit.setOnClickListener {
-                    //(pertimbangin limit jd berapa karakter? takutnya makan tempat di game activity)
                     createEnterNameDialog {
                         sharedPref.getString("user_name", null).let { newUsername ->
                             tvName.text = "Welcome, $newUsername"
@@ -73,13 +77,16 @@ class MenuActivity : AppCompatActivity() {
                         is Resource.Ok -> {
                             resource.data?.let { data ->
                                 if (data.success) {
-                                    startActivity(Intent(this@MenuActivity, GameActivity::class.java))
+                                    val intent = Intent(this@MenuActivity, GameActivity::class.java)
+                                    intent.putExtra("room_name", viewModel.roomName)
+                                    startActivity(intent)
                                     return@observe
                                 }
                                 Snackbar.make(root, "room with name ${roomName} already taken", Snackbar.LENGTH_SHORT).show()
                             }
                         }
                     }
+                    changeButtonState(true)
                 })
 
                 joinRoomResp.observe(this@MenuActivity, { resource ->
@@ -91,13 +98,16 @@ class MenuActivity : AppCompatActivity() {
                         is Resource.Ok -> {
                             resource.data?.let { data ->
                                 if (data.success) {
-                                    startActivity(Intent(this@MenuActivity, GameActivity::class.java))
+                                    val intent = Intent(this@MenuActivity, GameActivity::class.java)
+                                    intent.putExtra("room_name", viewModel.roomName)
+                                    startActivity(intent)
                                     return@observe
                                 }
                                 Snackbar.make(root, "room with name ${roomName} does not exist", Snackbar.LENGTH_SHORT).show()
                             }
                         }
                     }
+                    changeButtonState(true)
                 })
             }
         }
@@ -117,13 +127,52 @@ class MenuActivity : AppCompatActivity() {
 
             btnSubmit.setOnClickListener {
                 if (etName.text.isNullOrBlank()) {
-                    Snackbar.make(binding.root, "Name cannot be empty", Snackbar.LENGTH_SHORT).show()
-                } else {
-                    sharedPref.edit().putString("user_name", etName.text.toString()).apply()
-                    onSuccess()
-                    dialog.dismiss()
+                    tilName.error = "Name cannot be empty"
+                    return@setOnClickListener
                 }
+
+                sharedPref.edit().putString("user_name", etName.text.toString()).apply()
+                onSuccess()
+                dialog.dismiss()
             }
+        }
+    }
+
+    private fun createEnterRoomNameDialog(onSuccess: () -> Unit) {
+        val layoutDialog = EnterRoomNameDialogBinding.inflate(layoutInflater)
+        val builder = AlertDialog.Builder(this)
+        builder.setView(layoutDialog.root).setCancelable(false)
+        val dialog = builder.create()
+        dialog.show()
+
+        layoutDialog.apply {
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            btnSubmit.setOnClickListener {
+                if (etRoomName.text.isNullOrBlank()) {
+                    tilRoomName.error = "Room name cannot be empty"
+                    return@setOnClickListener
+                }
+
+                viewModel.roomName = etRoomName.text.toString()
+                onSuccess()
+                changeButtonState(false)
+                dialog.dismiss()
+            }
+        }
+    }
+
+    private fun changeButtonState(isEnabled: Boolean) {
+        binding.apply {
+            if (isEnabled) {
+                btnCreate.enable()
+                btnJoin.enable()
+                return
+            }
+            btnCreate.disable()
+            btnJoin.disable()
         }
     }
 }

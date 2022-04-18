@@ -6,26 +6,89 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.game.GameActivity">
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilGuess"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        app:errorEnabled="true"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toStartOf="@+id/btnAction"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etGuess"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Guess drawing"
+            android:textSize="16dp">
+
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAction"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Submit"
+        android:textAllCaps="false"
+        android:textSize="18dp"
+        app:backgroundTint="#42BDAB"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tilGuess"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tilGuess"
+        app:layout_constraintVertical_bias="0.15"
+        app:strokeColor="#4AED5D"
+        app:strokeWidth="1dp">
+
+    </com.google.android.material.button.MaterialButton>
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="24dp"
+        android:background="#F89696"
+        app:layout_constraintBottom_toTopOf="@+id/rvPlayers"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/tilGuess" />
 
-    <Button
+    <TextView
+        android:id="@+id/tvRoomName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:textSize="14dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/rvPlayers"
+        app:layout_constraintTop_toBottomOf="@+id/fragmentContainerView"
+        tools:text="Room name: nani" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPlayers"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnReset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="-32dp"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        app:backgroundTint="#A69595"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/fragmentContainerView"
+        app:srcCompat="@drawable/ic_clear" />
 </androidx.constraintlayout.widget.ConstraintLayout>
