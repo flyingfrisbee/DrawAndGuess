@@ -64,7 +64,6 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
     }
 
     fun clearCanvas() {
-        sendMessageToWebsocket("0;${viewModel.playerUID}")
         canvasView.clearCanvas()
     }
 

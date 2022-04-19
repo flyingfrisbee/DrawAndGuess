@@ -57,6 +57,7 @@ class GameActivity : AppCompatActivity() {
                 btnReset.setOnClickListener {
                     if (currentTurn == playerUID) {
                         canvasFragment.clearCanvas()
+                        canvasFragment.sendMessageToWebsocket("0;${viewModel.playerUID}")
                     }
                 }
 
@@ -70,6 +71,8 @@ class GameActivity : AppCompatActivity() {
                     if (currentTurn == playerUID) {
                         //send "2" to server to continue turn
                         canvasFragment.sendMessageToWebsocket("2")
+                        canvasFragment.clearCanvas()
+                        canvasFragment.sendMessageToWebsocket("0;${viewModel.playerUID}")
                     } else {
                         //send "3,UID,answer" to server to submit answer
                         canvasFragment.sendMessageToWebsocket("3;${playerUID};${etGuess.text.toString()}")
