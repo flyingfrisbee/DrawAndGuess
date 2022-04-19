@@ -13,11 +13,6 @@ import com.giovann.minipaint.model.MovementCoordinate
 import com.giovann.minipaint.utils.Constants
 
 class CanvasView(context: Context) : View(context) {
-
-    interface CanvasListener {
-        fun sendMovementData(data: MutableList<MovementCoordinate>)
-    }
-
     private lateinit var extraCanvas: Canvas
     private lateinit var extraBitmap: Bitmap
     private val backgroundColor = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
@@ -54,13 +49,15 @@ class CanvasView(context: Context) : View(context) {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        motionTouchEventX = event.x
-        motionTouchEventY = event.y
+        if (drawingEnabled) {
+            motionTouchEventX = event.x
+            motionTouchEventY = event.y
 
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> touchStart()
-            MotionEvent.ACTION_MOVE -> touchMove()
-            MotionEvent.ACTION_UP -> touchUp()
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> touchStart()
+                MotionEvent.ACTION_MOVE -> touchMove()
+                MotionEvent.ACTION_UP -> touchUp()
+            }
         }
 
         return true
@@ -116,8 +113,14 @@ class CanvasView(context: Context) : View(context) {
         invalidate()
     }
 
+    interface CanvasListener {
+        fun sendMovementData(data: MutableList<MovementCoordinate>)
+    }
+
     companion object {
         private var mListener: CanvasListener? = null
+        var drawingEnabled: Boolean = false
+
         fun newInstance(listener: CanvasListener, context: Context): CanvasView {
             mListener = listener
             return CanvasView(context)
