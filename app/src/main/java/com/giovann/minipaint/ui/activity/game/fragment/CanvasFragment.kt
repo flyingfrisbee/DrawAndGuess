@@ -7,13 +7,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.giovann.minipaint.R
 import com.giovann.minipaint.model.MovementCoordinate
 import com.giovann.minipaint.model.game.GameStatusUpdate
+import com.giovann.minipaint.ui.activity.game.PlayerAdapter
 import com.giovann.minipaint.utils.Constants.WEBSOCKET_URL
 import com.giovann.minipaint.view_model.GameViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.*
 import timber.log.Timber
 
@@ -37,13 +44,28 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
         return canvasView
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.apply {
+            val gameStatusUpdateOnce: LiveData<GameStatusUpdate> = gameStatusUpdate
+            gameStatusUpdateOnce.observe(viewLifecycleOwner, object : Observer<GameStatusUpdate> {
+                override fun onChanged(t: GameStatusUpdate?) {
+                    if (t?.players?.size == 1) {
+                        pingEveryDuration()
+                    }
+                    gameStatusUpdateOnce.removeObserver(this)
+                }
+            })
+        }
+    }
+
     override fun onDestroyView() {
         ws.close(1000, null)
         super.onDestroyView()
     }
 
     override fun sendMovementData(data: MutableList<MovementCoordinate>) {
-        Log.i("CanvasFragment", "$data")
         sendMessageToWebsocket("1;${viewModel.playerUID};${Gson().toJson(data)}")
     }
 
@@ -57,6 +79,14 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
         ws = client.newWebSocket(request, listener)
 
         client.dispatcher.executorService.shutdown()
+    }
+
+    private fun pingEveryDuration() {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            delay(16000L)
+            ws.send("e")
+            pingEveryDuration()
+        }
     }
 
     fun sendMessageToWebsocket(text: String) {
@@ -74,32 +104,45 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
                     '{' -> {
                         val typeToken = object : TypeToken<GameStatusUpdate>() {}.type
                         val resp = Gson().fromJson<GameStatusUpdate>(text, typeToken)
-                        Timber.i("onMessage 'gameStatUpdate':: ${resp}")
                         updateStatus(resp)
                     }
 
+                    '[' -> {
+                        val typeToken = object : TypeToken<List<MovementCoordinate>>() {}.type
+                        val resp = Gson().fromJson<List<MovementCoordinate>>(text, typeToken)
+                        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                            canvasView.syncDrawing(resp)
+                        }
+                    }
+
                     '0' -> {
-                        Timber.i("onMessage '0':: ${text}")
                         clearCanvas()
                     }
 
-                    else -> {
-                        Timber.i("onMessageElse:: ${text}")
+                    '4' -> {
+                        if (text.length > 1) {
+                            val typeToken = object : TypeToken<GameStatusUpdate>() {}.type
+                            val resp = Gson().fromJson<GameStatusUpdate>(text.substring(2), typeToken)
+                            updateStatus(resp)
+                        }
+                        PlayerAdapter.gameIsFinished = true
                     }
+
+                    else -> {}
                 }
-//            canvasView.syncDrawing(resp)
             }
             super.onMessage(webSocket, text)
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-            Timber.i("onClose:: ${code}, ${reason}")
+//            Timber.i("onClosing: ${reason}")
             viewModel.sendCloseGameSignal()
             super.onClosing(webSocket, code, reason)
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            Timber.i("onFailure:: error: ${t.message}")
+//            Timber.i("onFailure: ${response?.message}. ${response}")
+            viewModel.sendCloseGameSignal()
             super.onFailure(webSocket, t, response)
         }
     }

@@ -88,7 +88,27 @@ class GameActivity : AppCompatActivity() {
                 gameStatusUpdate.observe(this@GameActivity, { stat ->
                     getPlayerUIDForFirstTime(stat)
                     currentTurn = stat.currentlyDrawing
-                    adapter.populateData(stat.players, currentTurn)
+
+                    var res = stat.players
+                    if (PlayerAdapter.gameIsFinished) {
+                        var ranking = 1
+                        val orderedListByScore = res.sortedByDescending { it.score }
+                        for (i in 0..(orderedListByScore.size - 2)) {
+                            if (orderedListByScore[i].score > orderedListByScore[i+1].score) {
+                                orderedListByScore[i].rank = ranking
+                                if (i == (orderedListByScore.size - 2)) {
+                                    orderedListByScore[(i+1)].rank = ranking+1
+                                }
+                            } else {
+                                orderedListByScore[i].rank = ranking
+                                orderedListByScore[(i+1)].rank = ranking
+                            }
+                            ranking++
+                        }
+                        res = orderedListByScore.sortedBy { it.uid }
+//                        Timber.i("game finished! $res")
+                    }
+                    adapter.populateData(res, currentTurn)
 
                     if (currentTurn == playerUID) {
                         CanvasView.drawingEnabled = true
@@ -107,7 +127,14 @@ class GameActivity : AppCompatActivity() {
                     } else {
                         CanvasView.drawingEnabled = false
                         btnAction.text = "Submit"
-                        btnAction.enable()
+
+                        val selfStatus = stat.players.first { it.uid == playerUID }
+                        if (selfStatus.hasAnswered) {
+                            btnAction.disable()
+                        } else {
+                            btnAction.enable()
+                        }
+
                     }
                 })
 
@@ -116,6 +143,11 @@ class GameActivity : AppCompatActivity() {
                 })
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        PlayerAdapter.gameIsFinished = false
     }
 
     private fun getPlayerUIDForFirstTime(stat: GameStatusUpdate) {

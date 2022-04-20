@@ -15,5 +15,6 @@ data class Player(
     val hasAnswered: Boolean,
     val name: String,
     val score: Int,
-    val uid: Int
+    val uid: Int,
+    var rank: Int,
 )

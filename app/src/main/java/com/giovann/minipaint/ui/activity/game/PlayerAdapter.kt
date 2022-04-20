@@ -2,6 +2,7 @@ package com.giovann.minipaint.ui.activity.game
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -10,6 +11,7 @@ import com.giovann.minipaint.databinding.ItemPlayerBinding
 import com.giovann.minipaint.model.game.Player
 import com.giovann.minipaint.utils.Helpers.hideView
 import com.giovann.minipaint.utils.Helpers.showView
+import timber.log.Timber
 
 class PlayerAdapter(private val context: Context) : RecyclerView.Adapter<PlayerAdapter.ViewHolder>() {
 
@@ -30,7 +32,7 @@ class PlayerAdapter(private val context: Context) : RecyclerView.Adapter<PlayerA
     }
 
     override fun getItemCount(): Int {
-        return  listContainer.size
+        return listContainer.size
     }
 
     fun populateData(input: List<Player>, currentlyDrawing: Int) {
@@ -56,7 +58,37 @@ class PlayerAdapter(private val context: Context) : RecyclerView.Adapter<PlayerA
                 }
                 tvPlayerScore.text = "Score: ${player.score}"
                 tvPlayerName.text = player.name
+
+                if (gameIsFinished) {
+                    if (tvDrawingStatus.visibility == View.VISIBLE) {
+                        tvDrawingStatus.hideView()
+                    }
+                    tvRank.showView()
+                    when (player.rank) {
+                        1 -> {
+                            tvRank.text = "1st"
+                        }
+
+                        2 -> {
+                            tvRank.text = "2nd"
+                        }
+
+                        3 -> {
+                            tvRank.text = "3rd"
+                        }
+
+                        4 -> {
+                            tvRank.text = "4th"
+                        }
+                    }
+                } else {
+                    tvRank.hideView()
+                }
             }
         }
+    }
+
+    companion object {
+        var gameIsFinished = false
     }
 }

@@ -97,7 +97,7 @@ class CanvasView(context: Context) : View(context) {
         extraCanvas.drawColor(backgroundColor)
     }
 
-    fun syncDrawing(input: List<MovementCoordinate>) {
+    suspend fun syncDrawing(input: List<MovementCoordinate>) {
         path.reset()
         path.moveTo(input[0].currentX, input[0].currentY)
         input.forEach {
