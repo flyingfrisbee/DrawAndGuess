@@ -7,24 +7,22 @@ import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.giovann.minipaint.ui.activity.game.fragment.CanvasFragment
 import com.giovann.minipaint.R
 import com.giovann.minipaint.databinding.ActivityGameBinding
-import com.giovann.minipaint.model.enumerate.Resource
 import com.giovann.minipaint.model.game.GameStatusUpdate
+import com.giovann.minipaint.model.game.Player
 import com.giovann.minipaint.ui.activity.game.fragment.CanvasView
+import com.giovann.minipaint.ui.dialog_utils.CustomDialog
 import com.giovann.minipaint.utils.Helpers.disable
 import com.giovann.minipaint.utils.Helpers.enable
 import com.giovann.minipaint.view_model.GameViewModel
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity(), CustomDialog.OnDialogClicked {
     private lateinit var binding: ActivityGameBinding
+    private lateinit var customDialog: CustomDialog
     private val viewModel: GameViewModel by viewModels()
     private val sharedPref: SharedPreferences by lazy {
         getSharedPreferences("Scribbler", Context.MODE_PRIVATE)
@@ -106,7 +104,8 @@ class GameActivity : AppCompatActivity() {
                             ranking++
                         }
                         res = orderedListByScore.sortedBy { it.uid }
-//                        Timber.i("game finished! $res")
+
+                        showGameFinishedDialog(res)
                     }
                     adapter.populateData(res, currentTurn)
 
@@ -148,6 +147,21 @@ class GameActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         PlayerAdapter.gameIsFinished = false
+    }
+
+    override fun onBtnClicked() {
+        customDialog.dismiss()
+        finish()
+    }
+
+    private fun showGameFinishedDialog(res: List<Player>) {
+        customDialog = CustomDialog.newInstance(
+            this@GameActivity,
+            this@GameActivity,
+            res.find { viewModel.playerUID == it.uid }!!.rank
+        )
+        customDialog.setCancelable(false)
+        customDialog.show()
     }
 
     private fun getPlayerUIDForFirstTime(stat: GameStatusUpdate) {

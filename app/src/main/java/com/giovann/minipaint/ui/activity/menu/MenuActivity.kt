@@ -18,6 +18,8 @@ import com.giovann.minipaint.utils.Helpers.disable
 import com.giovann.minipaint.utils.Helpers.enable
 import com.giovann.minipaint.view_model.MenuViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -109,6 +111,38 @@ class MenuActivity : AppCompatActivity() {
                     }
                     changeButtonState(true)
                 })
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (sharedPref.getBoolean("have_finished_game", false)) {
+            startInAppReviewFlow()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sharedPref.edit().putBoolean("have_finished_game", false).apply()
+    }
+
+    private fun startInAppReviewFlow() {
+        val manager = ReviewManagerFactory.create(this)
+        val request = manager.requestReviewFlow()
+        request.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val reviewInfo = task.result
+
+                val flow = manager.launchReviewFlow(this, reviewInfo)
+                flow.addOnCompleteListener { _ ->
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown. Thus, no
+                    // matter the result, we continue our app flow.
+                }
+            } else {
+                // There was some problem, log or handle the error code.
+                // @ReviewErrorCode val reviewErrorCode = (task.getException() as TaskException).errorCode
             }
         }
     }
