@@ -1,11 +1,15 @@
 package com.giovann.minipaint.api
 
+import com.giovann.minipaint.model.response.AppVersionResponse
 import com.giovann.minipaint.model.response.ScribblerResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface ScribblerAPI {
+
+    @GET("/version")
+    suspend fun getAppVersion(): Response<AppVersionResponse>
 
     @GET("/createroom/{room_name}")
     suspend fun createRoom(

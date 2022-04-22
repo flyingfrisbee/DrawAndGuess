@@ -51,19 +51,21 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            delay(90000L)
-            sharedPref.edit().putBoolean("have_finished_game", true).apply()
-        }
-
         viewModel.apply {
+            getHeightAndWidthOfCanvas()
+
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                delay(90000L)
+                sharedPref.edit().putBoolean("have_finished_game", true).apply()
+            }
+
             val gameStatusUpdateOnce: LiveData<GameStatusUpdate> = gameStatusUpdate
             gameStatusUpdateOnce.observe(viewLifecycleOwner, object : Observer<GameStatusUpdate> {
                 override fun onChanged(t: GameStatusUpdate?) {
                     if (t?.players?.size == 1) {
                         pingEveryDuration()
                     }
+
                     gameStatusUpdateOnce.removeObserver(this)
                 }
             })
@@ -76,7 +78,22 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
     }
 
     override fun sendMovementData(data: MutableList<MovementCoordinate>) {
-        sendMessageToWebsocket("1;${viewModel.playerUID};${Gson().toJson(data)}")
+        viewModel.apply {
+            sendMessageToWebsocket("1;$playerUID;w=$widthPixel;h=$heightPixel;${Gson().toJson(data)}")
+        }
+    }
+
+    private fun getHeightAndWidthOfCanvas() {
+        viewModel.apply {
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(1000L)
+                heightPixel = canvasView.height
+                widthPixel = canvasView.width
+                if (isDrawingTurn) {
+                    CanvasView.drawingEnabled = true
+                }
+            }
+        }
     }
 
     private fun startWebsocket() {
@@ -118,9 +135,19 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
                     }
 
                     '[' -> {
+                        val textList = text.substring(1).split(";")
+                        val widthScale = widthPixel.toFloat() / textList[0].toInt()
+                        val heightScale = heightPixel.toFloat() / textList[1].toInt()
+
                         val typeToken = object : TypeToken<List<MovementCoordinate>>() {}.type
-                        val resp = Gson().fromJson<List<MovementCoordinate>>(text, typeToken)
+                        val resp = Gson().fromJson<List<MovementCoordinate>>(textList[2], typeToken)
                         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                            resp.forEach {
+                                it.currentX = it.currentX * widthScale
+                                it.endX = it.endX * widthScale
+                                it.currentY = it.currentY * heightScale
+                                it.endY = it.endY * heightScale
+                            }
                             canvasView.syncDrawing(resp)
                         }
                     }
@@ -130,11 +157,6 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
                     }
 
                     '4' -> {
-                        if (text.length > 1) {
-                            val typeToken = object : TypeToken<GameStatusUpdate>() {}.type
-                            val resp = Gson().fromJson<GameStatusUpdate>(text.substring(2), typeToken)
-                            updateStatus(resp)
-                        }
                         PlayerAdapter.gameIsFinished = true
                     }
 

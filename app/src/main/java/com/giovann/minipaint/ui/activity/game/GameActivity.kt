@@ -109,8 +109,11 @@ class GameActivity : AppCompatActivity(), CustomDialog.OnDialogClicked {
                     }
                     adapter.populateData(res, currentTurn)
 
-                    if (currentTurn == playerUID) {
-                        CanvasView.drawingEnabled = true
+                    isDrawingTurn = (currentTurn == playerUID)
+                    if (isDrawingTurn) {
+                        if (heightPixel != 0) {
+                            CanvasView.drawingEnabled = true
+                        }
                         etGuess.setText(stat.answer)
                         btnAction.text = "Next"
                         stat.players.forEach { eachPlayer ->
@@ -145,8 +148,9 @@ class GameActivity : AppCompatActivity(), CustomDialog.OnDialogClicked {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         PlayerAdapter.gameIsFinished = false
+        CanvasView.drawingEnabled = false
+        super.onDestroy()
     }
 
     override fun onBtnClicked() {

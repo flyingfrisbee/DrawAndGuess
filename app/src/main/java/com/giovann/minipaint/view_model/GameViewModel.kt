@@ -18,6 +18,9 @@ class GameViewModel @Inject constructor(
 ) : ViewModel() {
     var playerUID = -1
     var currentTurn = -2
+    var heightPixel = 0
+    var widthPixel = 0
+    var isDrawingTurn = false
 
     private val _gameStatusUpdate = MutableLiveData<GameStatusUpdate>()
     val gameStatusUpdate: LiveData<GameStatusUpdate> = _gameStatusUpdate

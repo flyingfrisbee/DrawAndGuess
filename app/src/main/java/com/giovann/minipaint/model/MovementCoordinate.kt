@@ -1,8 +1,8 @@
 package com.giovann.minipaint.model
 
 data class MovementCoordinate(
-    val currentX: Float,
-    val endX: Float,
-    val currentY: Float,
-    val endY: Float,
+    var currentX: Float,
+    var endX: Float,
+    var currentY: Float,
+    var endY: Float,
 )
