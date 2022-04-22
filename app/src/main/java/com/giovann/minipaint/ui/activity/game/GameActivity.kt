@@ -168,21 +168,6 @@ class GameActivity : AppCompatActivity(), CustomDialog.OnDialogClicked {
         customDialog.show()
     }
 
-    override fun onBtnClicked() {
-        customDialog.dismiss()
-        finish()
-    }
-
-    private fun showGameFinishedDialog(res: List<Player>) {
-        customDialog = CustomDialog.newInstance(
-            this@GameActivity,
-            this@GameActivity,
-            res.find { viewModel.playerUID == it.uid }!!.rank
-        )
-        customDialog.setCancelable(false)
-        customDialog.show()
-    }
-
     private fun getPlayerUIDForFirstTime(stat: GameStatusUpdate) {
         viewModel.apply {
             if (playerUID == -1) {
