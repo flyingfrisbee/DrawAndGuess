@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.giovann.minipaint.model.enumerate.Resource
+import com.giovann.minipaint.model.response.AppVersionResponse
 import com.giovann.minipaint.model.response.ScribblerResponse
 import com.giovann.minipaint.repository.ScribblerRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +17,14 @@ class MenuViewModel @Inject constructor(
     private val repo: ScribblerRepo
 ) : ViewModel() {
     var roomName = ""
+
+    private val _appVersion = MutableLiveData<Resource<AppVersionResponse>>()
+    val appVersion: LiveData<Resource<AppVersionResponse>> = _appVersion
+
+    fun executeGetAppVersion() = viewModelScope.launch {
+        _appVersion.value = repo.getAppVersion()
+        _appVersion.value = Resource.Empty()
+    }
 
     private val _createRoomResp = MutableLiveData<Resource<ScribblerResponse>>()
     val createRoomResp: LiveData<Resource<ScribblerResponse>> = _createRoomResp

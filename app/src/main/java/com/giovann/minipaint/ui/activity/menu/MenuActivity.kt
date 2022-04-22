@@ -4,16 +4,21 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import com.giovann.minipaint.BuildConfig
 import com.giovann.minipaint.databinding.ActivityMenuBinding
 import com.giovann.minipaint.databinding.EnterNameDialogBinding
 import com.giovann.minipaint.databinding.EnterRoomNameDialogBinding
+import com.giovann.minipaint.model.enumerate.PlaycoreUpdateStatus
 import com.giovann.minipaint.model.enumerate.Resource
 import com.giovann.minipaint.ui.activity.game.GameActivity
+import com.giovann.minipaint.use_case.PlaycoreCheckForUpdate
+import com.giovann.minipaint.utils.Constants.PLAYCORE_APP_UPDATE
 import com.giovann.minipaint.utils.Helpers.disable
 import com.giovann.minipaint.utils.Helpers.enable
 import com.giovann.minipaint.view_model.MenuViewModel
@@ -27,6 +32,7 @@ import timber.log.Timber
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
+    private lateinit var playcoreCheckForUpdate: PlaycoreCheckForUpdate
     private val viewModel: MenuViewModel by viewModels()
     private val sharedPref: SharedPreferences by lazy {
         getSharedPreferences("Scribbler", Context.MODE_PRIVATE)
@@ -39,6 +45,9 @@ class MenuActivity : AppCompatActivity() {
 
         binding.apply {
             viewModel.apply {
+                playcoreCheckForUpdate = PlaycoreCheckForUpdate(this@MenuActivity)
+                executeGetAppVersion()
+
                 val username = sharedPref.getString("user_name", null)
                 if (username == null) {
                     createEnterNameDialog {
@@ -69,6 +78,22 @@ class MenuActivity : AppCompatActivity() {
                         }
                     }
                 }
+
+                appVersion.observe(this@MenuActivity, { resource ->
+                    when (resource) {
+                        is Resource.Failed -> {
+                            Snackbar.make(root, resource.msg!!, Snackbar.LENGTH_SHORT).show()
+                        }
+
+                        is Resource.Ok -> {
+                            if (BuildConfig.VERSION_CODE < resource.data!!.mandatoryVersion) {
+                                playcoreCheckForUpdate(isMandatory = true)
+                            } else if (BuildConfig.VERSION_CODE < resource.data!!.optionalVersion) {
+                                playcoreCheckForUpdate(isMandatory = false)
+                            }
+                        }
+                    }
+                })
 
                 createRoomResp.observe(this@MenuActivity, { resource ->
                     when (resource) {
@@ -115,8 +140,17 @@ class MenuActivity : AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == PLAYCORE_APP_UPDATE && resultCode == RESULT_CANCELED && playcoreCheckForUpdate.getUpdateStatus() is PlaycoreUpdateStatus.Mandatory) {
+            finish()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onResume() {
         super.onResume()
+        playcoreCheckForUpdate.restoreUIForUpdate()
+
         if (sharedPref.getBoolean("have_finished_game", false)) {
             startInAppReviewFlow()
         }

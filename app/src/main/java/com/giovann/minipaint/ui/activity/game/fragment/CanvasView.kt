@@ -84,7 +84,9 @@ class CanvasView(context: Context) : View(context) {
     }
 
     private fun touchUp() {
-        mListener!!.sendMovementData(data)
+        if (data.size != 0) {
+            mListener!!.sendMovementData(data)
+        }
         data.clear()
 
         path.reset()
