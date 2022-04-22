@@ -1,5 +1,7 @@
 package com.giovann.minipaint.ui.activity.game.fragment
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -28,6 +30,9 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
     private lateinit var canvasView: CanvasView
     private lateinit var ws: WebSocket
     private val viewModel: GameViewModel by activityViewModels()
+    private val sharedPref: SharedPreferences by lazy {
+        requireContext().getSharedPreferences("Scribbler", Context.MODE_PRIVATE)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +51,11 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            delay(90000L)
+            sharedPref.edit().putBoolean("have_finished_game", true).apply()
+        }
 
         viewModel.apply {
             val gameStatusUpdateOnce: LiveData<GameStatusUpdate> = gameStatusUpdate

@@ -13,4 +13,9 @@
     <color name="card_player_pink">#FFCBCB</color>
     <color name="card_player_orange">#FA9D00</color>
     <color name="card_player_green">#51D354</color>
+
+    <color name="gold">#FFC40F</color>
+    <color name="silver">#A1A1A1</color>
+    <color name="bronze">#CD7F32</color>
+    <color name="red">#E40000</color>
 </resources>

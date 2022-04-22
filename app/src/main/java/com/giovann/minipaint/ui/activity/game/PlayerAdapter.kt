@@ -1,6 +1,7 @@
 package com.giovann.minipaint.ui.activity.game
 
 import android.content.Context
+import android.graphics.Color.red
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,18 +68,22 @@ class PlayerAdapter(private val context: Context) : RecyclerView.Adapter<PlayerA
                     when (player.rank) {
                         1 -> {
                             tvRank.text = "1st"
+                            tvRank.setTextColor(ContextCompat.getColor(context, R.color.gold))
                         }
 
                         2 -> {
                             tvRank.text = "2nd"
+                            tvRank.setTextColor(ContextCompat.getColor(context, R.color.silver))
                         }
 
                         3 -> {
                             tvRank.text = "3rd"
+                            tvRank.setTextColor(ContextCompat.getColor(context, R.color.bronze))
                         }
 
                         4 -> {
                             tvRank.text = "4th"
+                            tvRank.setTextColor(ContextCompat.getColor(context, R.color.red))
                         }
                     }
                 } else {
