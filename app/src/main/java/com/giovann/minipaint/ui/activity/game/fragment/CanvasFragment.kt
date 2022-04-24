@@ -141,15 +141,13 @@ class CanvasFragment : Fragment(), CanvasView.CanvasListener {
 
                         val typeToken = object : TypeToken<List<MovementCoordinate>>() {}.type
                         val resp = Gson().fromJson<List<MovementCoordinate>>(textList[2], typeToken)
-                        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                            resp.forEach {
-                                it.currentX = it.currentX * widthScale
-                                it.endX = it.endX * widthScale
-                                it.currentY = it.currentY * heightScale
-                                it.endY = it.endY * heightScale
-                            }
-                            canvasView.syncDrawing(resp)
+                        resp.forEach {
+                            it.currentX = it.currentX * widthScale
+                            it.endX = it.endX * widthScale
+                            it.currentY = it.currentY * heightScale
+                            it.endY = it.endY * heightScale
                         }
+                        canvasView.syncDrawing(resp)
                     }
 
                     '0' -> {
